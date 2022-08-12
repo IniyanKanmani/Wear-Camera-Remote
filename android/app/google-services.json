@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "383777188913",
+    "project_id": "wear-camera-remote",
+    "storage_bucket": "wear-camera-remote.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:383777188913:android:0f5c62b313764ba3f4f910",
+        "android_client_info": {
+          "package_name": "com.example.camera_remote"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "383777188913-5c3vuvs328204sj2ag5imtbcftshig7v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQqiicOsq0Q7ftUCvOUe5VZ4b1rewA0Nc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "383777188913-5c3vuvs328204sj2ag5imtbcftshig7v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:383777188913:android:12247da22f78c10bf4f910",
+        "android_client_info": {
+          "package_name": "com.example.wear_camera_remote"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "383777188913-5c3vuvs328204sj2ag5imtbcftshig7v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQqiicOsq0Q7ftUCvOUe5VZ4b1rewA0Nc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "383777188913-5c3vuvs328204sj2ag5imtbcftshig7v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
