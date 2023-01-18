@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wear_camera_remote/main.dart';
@@ -102,13 +100,10 @@ class _CameraScreenState extends State<CameraScreen>
   CollectionReference wearReference =
       FirebaseFirestore.instance.collection('wear_commands');
 
-  DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-
   @override
   void initState() {
     super.initState();
     initializeListeners();
-    debugPrint('OSVERSION:${Platform.version}');
     onNewCameraSelected(cameras[isRearCamera ? 0 : 1]);
     currentCameraMode = CameraMode.photo;
   }
@@ -125,7 +120,7 @@ class _CameraScreenState extends State<CameraScreen>
         for (DocumentChange element in snapshot.docChanges) {
           List<String> data = element.doc.data().toString().split(': ');
           String key = data[0].substring(1);
-          dynamic value = data[1].substring(0, data[1].length - 1);
+          String value = data[1].substring(0, data[1].length - 1);
           await executeCommands(key, value);
           debugPrint('COMMAND: $key $value');
           wearReference.doc(element.doc.id).delete();
@@ -134,8 +129,15 @@ class _CameraScreenState extends State<CameraScreen>
     });
   }
 
-  Future<void> executeCommands(String key, dynamic value) async {
-    if (key == 'capturePhoto') {
+  Future<void> executeCommands(String key, String value) async {
+    if (key == 'cameraMode') {
+      Vibration.cancel();
+      Vibration.vibrate(duration: 25, amplitude: 150);
+      Vibration.vibrate(duration: 25, amplitude: 1);
+      Vibration.vibrate(duration: 25, amplitude: 150);
+      currentCameraMode = value == '0' ? CameraMode.photo : CameraMode.video;
+      setState(() {});
+    } else if (key == 'capturePhoto') {
       currentCameraMode = CameraMode.photo;
       capture!.callCaptureImageOnTap();
       setState(() {});
@@ -145,20 +147,16 @@ class _CameraScreenState extends State<CameraScreen>
           ? await record!.callRecordOnTap()
           : await record!.callStopOnTap();
       setState(() {});
-    } else if (key == 'cameraMode') {
-      Vibration.cancel();
-      Vibration.vibrate(duration: 25, amplitude: 150);
-      Vibration.vibrate(duration: 25, amplitude: 1);
-      Vibration.vibrate(duration: 25, amplitude: 150);
-      currentCameraMode = value == '0' ? CameraMode.photo : CameraMode.video;
-      setState(() {});
-    } else if (key == 'flipCamera') {
-      await flipCamera!.callSwitchCameraOnTap();
     } else if (key == 'pauseVideo') {
       value == '0'
           ? await record!.callPauseOnTap()
           : await record!.callResumeOnTap();
       setState(() {});
+    } else if (key == 'flipCamera') {
+      if (!((value == '0' && isRearCamera) ||
+          (value == '1' && !isRearCamera))) {
+        await flipCamera!.callSwitchCameraOnTap();
+      }
     } else if (key == 'flash') {
       flash!.callSelectFlashOnTap(int.parse(value));
     } else if (key == 'timer') {
@@ -211,43 +209,6 @@ class _CameraScreenState extends State<CameraScreen>
       isCameraInitialized = controller!.value.isInitialized;
       setState(() {});
     }
-    Map deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
-    // debugPrint(deviceData.toString());
-    deviceData.forEach((key, value) {
-      debugPrint('key: $key    value: $value');
-    });
-  }
-
-  Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
-    return <String, dynamic>{
-      'version.securityPatch': build.version.securityPatch,
-      'version.sdkInt': build.version.sdkInt,
-      'version.release': build.version.release,
-      'version.previewSdkInt': build.version.previewSdkInt,
-      'version.incremental': build.version.incremental,
-      'version.codename': build.version.codename,
-      'version.baseOS': build.version.baseOS,
-      'board': build.board,
-      'bootloader': build.bootloader,
-      'brand': build.brand,
-      'device': build.device,
-      'display': build.display,
-      'fingerprint': build.fingerprint,
-      'hardware': build.hardware,
-      'host': build.host,
-      'id': build.id,
-      'manufacturer': build.manufacturer,
-      'model': build.model,
-      'product': build.product,
-      'supported32BitAbis': build.supported32BitAbis,
-      'supported64BitAbis': build.supported64BitAbis,
-      'supportedAbis': build.supportedAbis,
-      'tags': build.tags,
-      'type': build.type,
-      'isPhysicalDevice': build.isPhysicalDevice,
-      'androidId': build.androidId,
-      'systemFeatures': build.systemFeatures,
-    };
   }
 
   @override
@@ -588,6 +549,7 @@ class _CameraScreenState extends State<CameraScreen>
         capturedImage: capturedImage!,
         topBar: topBar!,
         changeToVideoMode: () {
+          mobileReference.add({'cameraMode': '1'});
           Vibration.cancel();
           Vibration.vibrate(duration: 25, amplitude: 150);
           Vibration.vibrate(duration: 25, amplitude: 1);
@@ -627,6 +589,7 @@ class _CameraScreenState extends State<CameraScreen>
       record: record!,
       audio: audio!,
       changeToPhotoMode: () {
+        mobileReference.add({'cameraMode': '0'});
         Vibration.cancel();
         Vibration.vibrate(duration: 25, amplitude: 150);
         Vibration.vibrate(duration: 25, amplitude: 1);

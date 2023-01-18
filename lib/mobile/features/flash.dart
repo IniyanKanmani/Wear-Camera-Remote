@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 
@@ -10,11 +11,14 @@ class Flash {
 
   List<FlashMode> flashValues = FlashMode.values;
   List<IconData> flashIcons = [
-    Icons.flash_off_sharp,
-    Icons.flash_auto_sharp,
-    Icons.flash_on_sharp,
-    Icons.highlight_sharp,
+    Icons.flash_off_outlined,
+    Icons.flash_auto_outlined,
+    Icons.flash_on_outlined,
+    Icons.highlight_outlined,
   ];
+
+  CollectionReference mobileReference =
+      FirebaseFirestore.instance.collection('mobile_commands');
 
   Flash(
       {required this.currentFlashMode,
@@ -47,6 +51,7 @@ class Flash {
   }
 
   void selectFlashOnTap(int i) {
+    mobileReference.add({'flash': '$i'});
     Vibration.cancel();
     Vibration.vibrate(duration: 25, amplitude: 100);
     currentFlashModeIcon = Icon(

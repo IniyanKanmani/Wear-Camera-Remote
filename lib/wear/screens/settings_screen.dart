@@ -1,22 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:wear/wear.dart';
 import 'package:wear_camera_remote/wear/constants/constants.dart';
-import 'package:wear_camera_remote/wear/features_screen/audio_screen.dart';
-import 'package:wear_camera_remote/wear/features_screen/flash_screen.dart';
-import 'package:wear_camera_remote/wear/features_screen/preview_ratio_screen.dart';
-import 'package:wear_camera_remote/wear/features_screen/resolution_screen.dart';
-import 'package:wear_camera_remote/wear/features_screen/timer_screen.dart';
-import 'package:wear_camera_remote/wear/features_screen/voice_control_screen.dart';
+import 'package:wear_camera_remote/wear/features/audio_screen.dart';
+import 'package:wear_camera_remote/wear/features/flash_screen.dart';
+import 'package:wear_camera_remote/wear/features/preview_ratio_screen.dart';
+import 'package:wear_camera_remote/wear/features/resolution_screen.dart';
+import 'package:wear_camera_remote/wear/features/timer_screen.dart';
+import 'package:wear_camera_remote/wear/features/voice_control_screen.dart';
 import 'package:wear_camera_remote/wear/screens/camera_remote_screen.dart';
 import 'package:wear_camera_remote/wear/voice/voice_control.dart';
 
 class SettingsScreen extends StatefulWidget {
   CameraMode currentCameraMode;
+  bool isRearCamera;
+  int currentFlash;
+  int currentTimer;
+  double currentPreviewRatio;
+  int currentResolution;
+  bool isAudioEnabled;
+  bool isVoiceControlEnabled;
   VoiceControl voice;
 
-  SettingsScreen(
-      {Key? key, required this.currentCameraMode, required this.voice})
-      : super(key: key);
+  SettingsScreen({
+    required this.currentCameraMode,
+    required this.isRearCamera,
+    required this.currentFlash,
+    required this.currentTimer,
+    required this.currentPreviewRatio,
+    required this.currentResolution,
+    required this.isAudioEnabled,
+    required this.isVoiceControlEnabled,
+    required this.voice,
+  });
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -55,84 +70,97 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () {
                   Navigator.pop(context);
                 }),
-            kSettingButtonWidget(
-              icons: Icons.flash_on_outlined,
-              text: 'Flash',
-              onTap: () {
-                // Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FlashScreen(),
-                  ),
-                );
-              },
-            ),
+            if (widget.isRearCamera)
+              kSettingButtonWidget(
+                icons: Icons.flash_on_outlined,
+                text: 'Flash',
+                onTap: () async {
+                  dynamic chose = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FlashScreen(
+                        currentFlash: widget.currentFlash,
+                      ),
+                    ),
+                  );
+                  chose ? Navigator.pop(context) : {};
+                },
+              ),
             kSettingButtonWidget(
               icons: Icons.timer_outlined,
               text: 'Timer',
-              onTap: () {
-                // Navigator.pop(context);
-                Navigator.push(
+              onTap: () async {
+                dynamic chose = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CaptureTimerScreen(),
+                    builder: (context) => CaptureTimerScreen(
+                      currentTimer: widget.currentTimer,
+                    ),
                   ),
                 );
+                chose ? Navigator.pop(context) : {};
               },
             ),
             kSettingButtonWidget(
               icons: Icons.screenshot_outlined,
               text: 'Preview Ratio',
-              onTap: () {
-                // Navigator.pop(context);
-                Navigator.push(
+              onTap: () async {
+                dynamic chose = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PreviewRatioScreen(),
+                    builder: (context) => PreviewRatioScreen(
+                      currentPreviewRatio: widget.currentPreviewRatio,
+                    ),
                   ),
                 );
+                chose ? Navigator.pop(context) : {};
               },
             ),
             kSettingButtonWidget(
               icons: Icons.photo_size_select_small_outlined,
               text: 'Resolution',
-              onTap: () {
-                // Navigator.pop(context);
-                Navigator.push(
+              onTap: () async {
+                dynamic chose = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ResolutionScreen(),
+                    builder: (context) => ResolutionScreen(
+                      currentResolution: widget.currentResolution,
+                    ),
                   ),
                 );
+                chose ? Navigator.pop(context) : {};
               },
             ),
             if (widget.currentCameraMode == CameraMode.video)
               kSettingButtonWidget(
                 icons: Icons.volume_up_outlined,
                 text: 'Audio',
-                onTap: () {
-                  // Navigator.pop(context);
-                  Navigator.push(
+                onTap: () async {
+                  dynamic chose = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AudioScreen(),
+                      builder: (context) => AudioScreen(
+                        isAudioEnabled: widget.isAudioEnabled,
+                      ),
                     ),
                   );
+                  chose ? Navigator.pop(context) : {};
                 },
               ),
             kSettingButtonWidget(
               icons: Icons.record_voice_over_outlined,
               text: 'Voice Control',
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                dynamic chose = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => VoiceControlScreen(
+                      isVoiceControlEnabled: widget.isVoiceControlEnabled,
                       voice: widget.voice,
                     ),
                   ),
                 );
+                chose ? Navigator.pop(context) : {};
               },
             ),
           ],

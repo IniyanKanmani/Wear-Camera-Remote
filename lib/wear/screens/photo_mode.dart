@@ -3,17 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:wear_camera_remote/wear/constants/constants.dart';
 
 class PhotoMode {
+  bool isPhotoCapturing;
   bool isRecordingInProgress;
-  CollectionReference mobileReference;
-  CollectionReference wearReference;
   VoidCallback onTap;
   VoidCallback settingsOnTap;
   VoidCallback changeToVideoMode;
 
+  CollectionReference wearReference =
+      FirebaseFirestore.instance.collection('wear_commands');
+
   PhotoMode({
+    required this.isPhotoCapturing,
     required this.isRecordingInProgress,
-    required this.mobileReference,
-    required this.wearReference,
     required this.onTap,
     required this.settingsOnTap,
     required this.changeToVideoMode,
@@ -38,14 +39,6 @@ class PhotoMode {
                 child: kSettingIconWidget(
                   icons: Icons.settings_outlined,
                 ),
-                // CircleAvatar(
-                //   backgroundColor: Colors.white24,
-                //   radius: 20.0,
-                //   child: Icon(
-                //     Icons.settings_outlined,
-                //     color: Colors.white,
-                //   ),
-                // ),
               ),
             ),
           ],
@@ -101,13 +94,14 @@ class PhotoMode {
             },
             child: Stack(
               alignment: AlignmentDirectional.center,
-              children: const [
-                CircleAvatar(
+              children: [
+                const CircleAvatar(
                   backgroundColor: Colors.white70,
                   radius: 25.0,
                 ),
                 CircleAvatar(
-                  backgroundColor: Colors.white,
+                  backgroundColor:
+                      isPhotoCapturing ? Colors.transparent : Colors.white,
                   radius: 22.0,
                 ),
               ],

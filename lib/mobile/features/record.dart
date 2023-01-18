@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:vibration/vibration.dart';
@@ -16,6 +17,9 @@ class Record {
   Future<void> Function() stopVideoOnTap;
   Future<void> Function() pauseVideoOnTap;
   Future<void> Function() resumeVideoOnTap;
+
+  CollectionReference mobileReference =
+      FirebaseFirestore.instance.collection('mobile_commands');
 
   Record({
     required this.isRecordingInProgress,
@@ -48,6 +52,8 @@ class Record {
   }
 
   Future<void> recordOnTap() async {
+    mobileReference.add({'cameraMode': '1'});
+    mobileReference.add({'recordVideo': '0'});
     Vibration.cancel();
     Vibration.vibrate(duration: 25, amplitude: 250);
     Vibration.vibrate(duration: 50, amplitude: 1);
@@ -64,6 +70,7 @@ class Record {
   }
 
   Future<void> stopOnTap() async {
+    mobileReference.add({'recordVideo': '1'});
     Vibration.cancel();
     Vibration.vibrate(duration: 25, amplitude: 250);
     Vibration.vibrate(duration: 50, amplitude: 1);
@@ -75,6 +82,7 @@ class Record {
   }
 
   Future<void> pauseOnTap() async {
+    mobileReference.add({'pauseVideo': '0'});
     Vibration.cancel();
     Vibration.vibrate(duration: 25, amplitude: 150);
     Vibration.vibrate(duration: 50, amplitude: 1);
@@ -86,6 +94,7 @@ class Record {
   }
 
   Future<void> resumeOnTap() async {
+    mobileReference.add({'pauseVideo': '1'});
     Vibration.cancel();
     Vibration.vibrate(duration: 25, amplitude: 150);
     Vibration.vibrate(duration: 50, amplitude: 1);
@@ -148,7 +157,7 @@ class Record {
         backgroundColor: Colors.transparent,
         radius: 30.0,
         child: Icon(
-          Icons.pause_sharp,
+          Icons.pause_outlined,
           color: Colors.white,
           size: 45.0,
         ),
@@ -165,7 +174,7 @@ class Record {
         backgroundColor: Colors.transparent,
         radius: 30.0,
         child: Icon(
-          Icons.play_arrow_sharp,
+          Icons.play_arrow_outlined,
           color: Colors.white,
           size: 45.0,
         ),

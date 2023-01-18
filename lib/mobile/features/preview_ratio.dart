@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fraction/fraction.dart';
 import 'package:vibration/vibration.dart';
@@ -13,6 +14,9 @@ class PreviewRatio {
     20 / 9,
   ];
 
+  CollectionReference mobileReference =
+      FirebaseFirestore.instance.collection('mobile_commands');
+
   PreviewRatio({
     required this.currentPreviewRatio,
     required this.showPreviewRatioBarOnTap,
@@ -20,6 +24,7 @@ class PreviewRatio {
   });
 
   void selectPreviewRatioOnTap(double ratio) {
+    mobileReference.add({'previewRatio': '$ratio'});
     Vibration.cancel();
     Vibration.vibrate(duration: 25, amplitude: 100);
     currentPreviewRatio = ratio;

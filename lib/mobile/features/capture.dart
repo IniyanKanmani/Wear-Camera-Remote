@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 // ignore: library_prefixes
 import 'package:image/image.dart' as IMG;
@@ -17,6 +18,9 @@ class Capture {
   String? rawImagePath;
   String? capturedFilePath;
 
+  CollectionReference mobileReference =
+      FirebaseFirestore.instance.collection('mobile_commands');
+
   Capture({
     required this.currentPreviewRatio,
     required this.beforeTakingPicture,
@@ -26,6 +30,8 @@ class Capture {
   });
 
   Future<void> captureImageOnTap() async {
+    mobileReference.add({'cameraMode': '0'});
+    mobileReference.add({'capturePhoto': '0'});
     Vibration.cancel();
     Vibration.vibrate(duration: 25, amplitude: 250);
     Vibration.vibrate(duration: 50, amplitude: 1);
@@ -45,6 +51,7 @@ class Capture {
     );
     capturedFilePath = copiedImage.path;
     afterTakingPicture();
+    mobileReference.add({'capturePhoto': '1'});
   }
 
   Future cropImage(String path) async {
@@ -86,7 +93,7 @@ class Capture {
         backgroundColor: Colors.transparent,
         radius: 30.0,
         child: Icon(
-          Icons.photo_camera_sharp,
+          Icons.photo_camera_outlined,
           color: Colors.white,
           size: 40.0,
         ),

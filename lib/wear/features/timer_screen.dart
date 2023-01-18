@@ -4,14 +4,16 @@ import 'package:wear/wear.dart';
 import 'package:wear_camera_remote/wear/constants/constants.dart';
 
 class CaptureTimerScreen extends StatelessWidget {
-  CaptureTimerScreen({Key? key}) : super(key: key);
-
   Size? screenSize;
   WearShape? wearShape;
-  CollectionReference mobileReference =
-      FirebaseFirestore.instance.collection('mobile_commands');
+  int currentTimer;
+
   CollectionReference wearReference =
       FirebaseFirestore.instance.collection('wear_commands');
+
+  CaptureTimerScreen({
+    required this.currentTimer,
+  });
 
   Widget timerScreenWidgets(BuildContext context) {
     return SingleChildScrollView(
@@ -33,7 +35,7 @@ class CaptureTimerScreen extends StatelessWidget {
               icons: Icons.arrow_back_outlined,
               text: 'Back',
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(context, false);
               },
             ),
             kSettingButtonWidget(
@@ -41,45 +43,54 @@ class CaptureTimerScreen extends StatelessWidget {
               text: '0 seconds',
               onTap: () {
                 wearReference.add({'timer': '0'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentTimer == 0 ? true : false,
             ),
             kSettingButtonWidget(
               icons: Icons.timer_outlined,
               text: '1 second',
               onTap: () {
                 wearReference.add({'timer': '1'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentTimer == 1 ? true : false,
             ),
             kSettingButtonWidget(
               icons: Icons.timer_outlined,
               text: '3 seconds',
               onTap: () {
                 wearReference.add({'timer': '3'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentTimer == 3 ? true : false,
             ),
             kSettingButtonWidget(
               icons: Icons.timer_outlined,
               text: '5 seconds',
               onTap: () {
                 wearReference.add({'timer': '5'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentTimer == 5 ? true : false,
             ),
             kSettingButtonWidget(
               icons: Icons.timer_outlined,
               text: '10 seconds',
               onTap: () {
                 wearReference.add({'timer': '10'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentTimer == 10 ? true : false,
             ),
           ],
         ),
       ),
     );
+  }
+
+  void setCurrentTimer(int currentTimer) {
+    this.currentTimer = currentTimer;
   }
 
   @override

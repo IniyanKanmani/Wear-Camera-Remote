@@ -4,14 +4,16 @@ import 'package:wear/wear.dart';
 import 'package:wear_camera_remote/wear/constants/constants.dart';
 
 class FlashScreen extends StatelessWidget {
-  FlashScreen({Key? key}) : super(key: key);
-
   Size? screenSize;
   WearShape? wearShape;
-  CollectionReference mobileReference =
-      FirebaseFirestore.instance.collection('mobile_commands');
+  int currentFlash;
+
   CollectionReference wearReference =
       FirebaseFirestore.instance.collection('wear_commands');
+
+  FlashScreen({
+    required this.currentFlash,
+  });
 
   Widget flashScreenWidgets(BuildContext context) {
     return SingleChildScrollView(
@@ -33,7 +35,7 @@ class FlashScreen extends StatelessWidget {
               icons: Icons.arrow_back_outlined,
               text: 'Back',
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(context, false);
               },
             ),
             kSettingButtonWidget(
@@ -41,37 +43,45 @@ class FlashScreen extends StatelessWidget {
               text: 'Off',
               onTap: () {
                 wearReference.add({'flash': '0'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentFlash == 0 ? true : false,
             ),
             kSettingButtonWidget(
               icons: Icons.flash_auto_outlined,
               text: 'Auto',
               onTap: () {
                 wearReference.add({'flash': '1'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentFlash == 1 ? true : false,
             ),
             kSettingButtonWidget(
               icons: Icons.flash_on_outlined,
               text: 'On',
               onTap: () {
                 wearReference.add({'flash': '2'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentFlash == 2 ? true : false,
             ),
             kSettingButtonWidget(
               icons: Icons.highlight_outlined,
               text: 'Torch',
               onTap: () {
                 wearReference.add({'flash': '3'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentFlash == 3 ? true : false,
             ),
           ],
         ),
       ),
     );
+  }
+
+  void setCurrentFlash(int currentFlash) {
+    this.currentFlash = currentFlash;
   }
 
   @override

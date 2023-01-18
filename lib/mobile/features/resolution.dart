@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 
@@ -11,6 +12,9 @@ class Resolution {
   List<ResolutionPreset> resolutionPresets;
   List<Widget> resolutionPresetWidgets = [];
   Map<ResolutionPreset, double>? resolutionValues;
+
+  CollectionReference mobileReference =
+      FirebaseFirestore.instance.collection('mobile_commands');
 
   Resolution({
     required this.isRearCamera,
@@ -56,6 +60,7 @@ class Resolution {
   }
 
   void selectResolutionOnTap(int i) {
+    mobileReference.add({'resolution': '$i'});
     Vibration.cancel();
     Vibration.vibrate(duration: 25, amplitude: 100);
     currentResolutionPreset = resolutionPresets[i];
@@ -78,7 +83,7 @@ class Resolution {
           height: 30,
           width: 30,
           child: Icon(
-            Icons.photo_size_select_small_sharp,
+            Icons.photo_size_select_small_outlined,
             color: Colors.white,
             size: 30.0,
           ),

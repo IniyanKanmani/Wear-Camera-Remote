@@ -6,9 +6,11 @@ import 'package:wear_camera_remote/wear/voice/voice_control.dart';
 class VoiceControlScreen extends StatelessWidget {
   Size? screenSize;
   WearShape? wearShape;
+  bool isVoiceControlEnabled;
   VoiceControl voice;
 
   VoiceControlScreen({
+    required this.isVoiceControlEnabled,
     required this.voice,
   });
 
@@ -32,7 +34,7 @@ class VoiceControlScreen extends StatelessWidget {
               icons: Icons.arrow_back_outlined,
               text: 'Back',
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(context, false);
               },
             ),
             kSettingButtonWidget(
@@ -41,21 +43,27 @@ class VoiceControlScreen extends StatelessWidget {
               onTap: () {
                 voice.stopListening();
                 voice.cancelListeningTimer();
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: !isVoiceControlEnabled,
             ),
             kSettingButtonWidget(
               icons: Icons.record_voice_over_outlined,
               text: 'On',
               onTap: () {
                 voice.initializeTimer();
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: isVoiceControlEnabled,
             ),
           ],
         ),
       ),
     );
+  }
+
+  void setIsVoiceControlEnabled(bool isVoiceControlEnabled) {
+    this.isVoiceControlEnabled = isVoiceControlEnabled;
   }
 
   @override

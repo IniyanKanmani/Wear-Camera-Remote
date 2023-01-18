@@ -4,14 +4,16 @@ import 'package:wear/wear.dart';
 import 'package:wear_camera_remote/wear/constants/constants.dart';
 
 class PreviewRatioScreen extends StatelessWidget {
-  PreviewRatioScreen({Key? key}) : super(key: key);
-
   Size? screenSize;
   WearShape? wearShape;
-  CollectionReference mobileReference =
-      FirebaseFirestore.instance.collection('mobile_commands');
+  double currentPreviewRatio;
+
   CollectionReference wearReference =
       FirebaseFirestore.instance.collection('wear_commands');
+
+  PreviewRatioScreen({
+    required this.currentPreviewRatio,
+  });
 
   Widget previewRatioScreenWidgets(BuildContext context) {
     return SingleChildScrollView(
@@ -33,7 +35,7 @@ class PreviewRatioScreen extends StatelessWidget {
               icons: Icons.arrow_back_outlined,
               text: 'Back',
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(context, false);
               },
             ),
             kSettingButtonWidget(
@@ -41,37 +43,45 @@ class PreviewRatioScreen extends StatelessWidget {
               text: '1 : 1',
               onTap: () {
                 wearReference.add({'previewRatio': '${1 / 1}'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentPreviewRatio == 1 / 1 ? true : false,
             ),
             kSettingButtonWidget(
               icons: Icons.screenshot_outlined,
               text: '3 : 4',
               onTap: () {
                 wearReference.add({'previewRatio': '${4 / 3}'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentPreviewRatio == 4 / 3 ? true : false,
             ),
             kSettingButtonWidget(
               icons: Icons.screenshot_outlined,
               text: '9 : 16',
               onTap: () {
                 wearReference.add({'previewRatio': '${16 / 9}'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentPreviewRatio == 16 / 9 ? true : false,
             ),
             kSettingButtonWidget(
               icons: Icons.screenshot_outlined,
               text: '9 : 20',
               onTap: () {
                 wearReference.add({'previewRatio': '${20 / 9}'});
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
+              current: currentPreviewRatio == 20 / 9 ? true : false,
             ),
           ],
         ),
       ),
     );
+  }
+
+  void setCurrentPreviewRatio(double currentPreviewRatio) {
+    this.currentPreviewRatio = currentPreviewRatio;
   }
 
   @override

@@ -3,17 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:wear/wear.dart';
 import 'package:wear_camera_remote/wear/constants/constants.dart';
 
-class ResolutionScreen extends StatelessWidget {
-  ResolutionScreen({Key? key}) : super(key: key);
-
+class AudioScreen extends StatelessWidget {
   Size? screenSize;
   WearShape? wearShape;
-  CollectionReference mobileReference =
-      FirebaseFirestore.instance.collection('mobile_commands');
+  bool isAudioEnabled;
+
   CollectionReference wearReference =
       FirebaseFirestore.instance.collection('wear_commands');
 
-  Widget resolutionScreenWidgets(BuildContext context) {
+  AudioScreen({
+    required this.isAudioEnabled,
+  });
+
+  Widget audioScreenWidgets(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.only(
@@ -23,47 +25,45 @@ class ResolutionScreen extends StatelessWidget {
           bottom: 30.0,
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             kSettingTextWidget(
-              text: 'Resolution',
+              text: 'Audio',
             ),
             kSettingButtonWidget(
               icons: Icons.arrow_back_outlined,
               text: 'Back',
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(context, false);
               },
             ),
             kSettingButtonWidget(
-              icons: Icons.photo_size_select_small_outlined,
-              text: 'Low',
+              icons: Icons.volume_off_outlined,
+              text: 'Off',
               onTap: () {
-                wearReference.add({'resolution': '0'});
-                Navigator.pop(context);
+                wearReference.add({'audio': '0'});
+                Navigator.pop(context, true);
               },
+              current: !isAudioEnabled,
             ),
             kSettingButtonWidget(
-              icons: Icons.photo_size_select_small_outlined,
-              text: 'Medium',
+              icons: Icons.volume_up_outlined,
+              text: 'On',
               onTap: () {
-                wearReference.add({'resolution': '1'});
-                Navigator.pop(context);
+                wearReference.add({'audio': '1'});
+                Navigator.pop(context, true);
               },
-            ),
-            kSettingButtonWidget(
-              icons: Icons.photo_size_select_small_outlined,
-              text: 'High',
-              onTap: () {
-                wearReference.add({'resolution': '2'});
-                Navigator.pop(context);
-              },
+              current: isAudioEnabled,
             ),
           ],
         ),
       ),
     );
+  }
+
+  void setIsAudioEnabled(bool isAudioEnabled) {
+    this.isAudioEnabled = isAudioEnabled;
   }
 
   @override
@@ -92,7 +92,7 @@ class ResolutionScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              resolutionScreenWidgets(context),
+              audioScreenWidgets(context),
             ],
           ),
         );

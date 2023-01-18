@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 Widget kSettingIconWidget({
   required IconData icons,
+  bool current = false,
 }) {
   return CircleAvatar(
     backgroundColor: Colors.white24,
@@ -9,7 +10,7 @@ Widget kSettingIconWidget({
     child: Icon(
       icons,
       size: 25.0,
-      color: Colors.white,
+      color: current ? Colors.red : Colors.white,
     ),
   );
 }
@@ -18,6 +19,7 @@ Widget kSettingButtonWidget({
   required IconData icons,
   required String text,
   required VoidCallback onTap,
+  bool current = false,
 }) {
   return GestureDetector(
     onTap: onTap,
@@ -40,6 +42,7 @@ Widget kSettingButtonWidget({
             children: [
               kSettingIconWidget(
                 icons: icons,
+                current: current,
               ),
               Container(
                 color: Colors.transparent,
@@ -47,8 +50,8 @@ Widget kSettingButtonWidget({
               ),
               Text(
                 text,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: current ? Colors.red : Colors.white,
                   fontSize: 15,
                 ),
               ),

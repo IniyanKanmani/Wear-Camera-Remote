@@ -18,8 +18,17 @@ class CameraRemoteScreen extends StatefulWidget {
 }
 
 class _CameraRemoteScreenState extends State<CameraRemoteScreen> {
+  bool isPhotoCapturing = false;
   bool isRecordingInProgress = false;
   bool isRecordingPaused = false;
+  bool isRearCamera = true;
+  bool isAudioEnabled = true;
+  bool isVoiceControlEnabled = false;
+
+  int currentFlash = 0;
+  int currentTimer = 0;
+  double currentPreviewRatio = 4 / 3;
+  int currentResolution = 2;
 
   CameraMode currentCameraMode = CameraMode.photo;
 
@@ -29,6 +38,8 @@ class _CameraRemoteScreenState extends State<CameraRemoteScreen> {
       FirebaseFirestore.instance.collection('wear_commands');
 
   static const openAppChannel = MethodChannel('iniyan.com/appOpen');
+  static const physicalButtonChannel =
+      MethodChannel('iniyan.com/physicalButton');
 
   VoiceControl? voice;
   PhotoMode? photoMode;
@@ -37,27 +48,45 @@ class _CameraRemoteScreenState extends State<CameraRemoteScreen> {
   @override
   void initState() {
     super.initState();
-    initializeListeners();
-    voice = VoiceControl(setStateCallBack: () {
-      setState(() {});
-    });
-    voice!.initializeSpeechToText();
+    initialize();
+    debugPrint('Screen Initialised');
   }
 
   @override
   void dispose() {
+    debugPrint('Screen Disposed');
     voice!.cancelListening();
     voice!.cancelListeningTimer();
     super.dispose();
   }
 
+  void initialize() {
+    voice = VoiceControl(
+        isPhotoCapturing: isPhotoCapturing,
+        isRecordingInProgress: isRecordingInProgress,
+        isRecordingPaused: isRecordingPaused,
+        isRearCamera: isRearCamera,
+        isAudioEnabled: isAudioEnabled,
+        currentFlash: currentFlash,
+        currentTimer: currentTimer,
+        currentPreviewRatio: currentPreviewRatio,
+        currentResolution: currentResolution,
+        currentCameraMode: currentCameraMode,
+        setStateCallBack: () {
+          setState(() {});
+        });
+    voice!.initializeSpeechToText();
+    initializeListeners();
+  }
+
   void initializeListeners() {
-    mobileReference.snapshots().listen((QuerySnapshot snapshot) {
+    mobileReference.snapshots().listen((QuerySnapshot snapshot) async {
       if (snapshot.size != 0) {
         for (var element in snapshot.docChanges) {
           List<String> data = element.doc.data().toString().split(': ');
           String key = data[0].substring(1);
-          dynamic value = data[1].substring(0, data[1].length - 1);
+          String value = data[1].substring(0, data[1].length - 1);
+          await executeCommands(key, value);
           debugPrint('COMMAND: $key $value');
           mobileReference.doc(element.doc.id).delete();
         }
@@ -65,22 +94,65 @@ class _CameraRemoteScreenState extends State<CameraRemoteScreen> {
     });
   }
 
+  Future<void> executeCommands(String key, String value) async {
+    if (key == 'cameraMode') {
+      currentCameraMode = value == '0' ? CameraMode.photo : CameraMode.video;
+    } else if (key == 'capturePhoto') {
+      isPhotoCapturing = value == '0' ? true : false;
+    } else if (key == 'recordVideo') {
+      isRecordingInProgress = value == '0' ? true : false;
+    } else if (key == 'pauseVideo') {
+      isRecordingPaused = value == '0' ? true : false;
+    } else if (key == 'flipCamera') {
+      isRearCamera = value == '0' ? true : false;
+    } else if (key == 'flash') {
+      currentFlash = int.parse(value);
+    } else if (key == 'timer') {
+      currentTimer = int.parse(value);
+    } else if (key == 'previewRatio') {
+      currentPreviewRatio = double.parse(value);
+    } else if (key == 'resolution') {
+      currentResolution = int.parse(value);
+    } else if (key == 'audio') {
+      isAudioEnabled = value == '0' ? true : false;
+    }
+    voice!.updateVariables(
+      isPhotoCapturing: isPhotoCapturing,
+      isRecordingInProgress: isRecordingInProgress,
+      isRecordingPaused: isRecordingPaused,
+      isRearCamera: isRearCamera,
+      isAudioEnabled: isAudioEnabled,
+      currentFlash: currentFlash,
+      currentTimer: currentTimer,
+      currentPreviewRatio: currentPreviewRatio,
+      currentResolution: currentResolution,
+      currentCameraMode: currentCameraMode,
+    );
+    setState(() {});
+  }
+
   void createPhotoMode() {
     photoMode = PhotoMode(
+      isPhotoCapturing: isPhotoCapturing,
       isRecordingInProgress: isRecordingInProgress,
-      mobileReference: mobileReference,
-      wearReference: wearReference,
       onTap: () {
         isRecordingInProgress = photoMode!.getIsRecordingInProgress;
         setState(() {});
       },
-      settingsOnTap: () {
-        Navigator.push(
+      settingsOnTap: () async {
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => SettingsScreen(
-              voice: voice!,
               currentCameraMode: currentCameraMode,
+              isRearCamera: isRearCamera,
+              currentFlash: currentFlash,
+              currentTimer: currentTimer,
+              currentPreviewRatio: currentPreviewRatio,
+              currentResolution: currentResolution,
+              isAudioEnabled: isAudioEnabled,
+              isVoiceControlEnabled: isVoiceControlEnabled,
+              voice: voice!,
             ),
           ),
         );
@@ -103,13 +175,20 @@ class _CameraRemoteScreenState extends State<CameraRemoteScreen> {
         isRecordingPaused = videoMode!.getIsRecordingPaused;
         setState(() {});
       },
-      settingsOnTap: () {
-        Navigator.push(
+      settingsOnTap: () async {
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => SettingsScreen(
-              voice: voice!,
               currentCameraMode: currentCameraMode,
+              isRearCamera: isRearCamera,
+              currentFlash: currentFlash,
+              currentTimer: currentTimer,
+              currentPreviewRatio: currentPreviewRatio,
+              currentResolution: currentResolution,
+              isAudioEnabled: isAudioEnabled,
+              isVoiceControlEnabled: isVoiceControlEnabled,
+              voice: voice!,
             ),
           ),
         );
@@ -124,6 +203,11 @@ class _CameraRemoteScreenState extends State<CameraRemoteScreen> {
   Future openAppOnPhone() async {
     await openAppChannel.invokeMethod('openAppOnPhone');
     debugPrint('Mobile App Should have opened');
+    setState(() {});
+  }
+
+  Future getWearablePhysicalButtons() async {
+    await physicalButtonChannel.invokeMethod('getWearablePhysicalButtons');
     setState(() {});
   }
 
@@ -143,7 +227,8 @@ class _CameraRemoteScreenState extends State<CameraRemoteScreen> {
                 double sensitivity = 10;
                 if (details.primaryVelocity! > sensitivity ||
                     details.primaryVelocity! < -sensitivity) {
-                  wearReference.add({'flipCamera': '0'});
+                  wearReference.add({'flipCamera': isRearCamera ? '1' : '0'});
+                  isRearCamera = !isRearCamera;
                 }
               },
               child: Container(
@@ -156,28 +241,27 @@ class _CameraRemoteScreenState extends State<CameraRemoteScreen> {
                       : BoxShape.rectangle,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(
-                    5.0,
-                  ),
-                  child:
-                      // Column(
-                      //   children: [
-                      //     Text(
-                      //       'On Phone',
-                      //       style: TextStyle(
-                      //         color: Colors.white,
-                      //       ),
-                      //     ),
-                      //     ElevatedButton(
-                      //       onPressed: openAppOnPhone,
-                      //       child: Text('Open App'),
-                      //     )
-                      //   ],
-                      // )
-                      currentCameraMode == CameraMode.photo
-                          ? photoMode!.buildPhotoModeUI()
-                          : videoMode!.buildVideoModeUI(),
-                ),
+                    padding: const EdgeInsets.all(
+                      5.0,
+                    ),
+                    child: Column(
+                      children: [
+                        // Text(
+                        //   'On Phone',
+                        //   style: TextStyle(
+                        //     color: Colors.white,
+                        //   ),
+                        // ),
+                        ElevatedButton(
+                          onPressed: getWearablePhysicalButtons,
+                          child: Text('Physical Buttons'),
+                        )
+                      ],
+                    )
+                    // currentCameraMode == CameraMode.photo
+                    //     ? photoMode!.buildPhotoModeUI()
+                    //     : videoMode!.buildVideoModeUI(),
+                    ),
               ),
             ),
           ),

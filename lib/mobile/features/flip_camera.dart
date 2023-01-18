@@ -25,7 +25,7 @@ class FlipCamera {
         backgroundColor: Colors.transparent,
         radius: 30.0,
         child: Icon(
-          Icons.cameraswitch_sharp,
+          Icons.cameraswitch_outlined,
           color: Colors.white,
           size: 40.0,
         ),

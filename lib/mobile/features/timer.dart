@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 
@@ -21,6 +22,9 @@ class CaptureTimer {
     10,
   ];
 
+  CollectionReference mobileReference =
+      FirebaseFirestore.instance.collection('mobile_commands');
+
   Future<void> setTimer() async {
     captureTimer = await Future.delayed(
       Duration(seconds: time),
@@ -31,6 +35,7 @@ class CaptureTimer {
   }
 
   void selectTimerOnTap(int value) {
+    mobileReference.add({'timer': '$value'});
     Vibration.cancel();
     Vibration.vibrate(duration: 25, amplitude: 100);
     time = value;
@@ -68,10 +73,6 @@ class CaptureTimer {
       timerWidgets.add(
         GestureDetector(
           onTap: () {
-            // Vibration.cancel();
-            // Vibration.vibrate(duration: 25, amplitude: 100);
-            // time = value;
-            // setTimerOnTap();
             selectTimerOnTap(value);
           },
           child: Padding(
